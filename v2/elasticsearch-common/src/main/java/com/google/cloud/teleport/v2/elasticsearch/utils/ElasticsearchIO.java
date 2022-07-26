@@ -1441,6 +1441,11 @@ public class ElasticsearchIO {
           }
         }
 
+        long newBatchSizeBytes = currentBatchSizeBytes + document.getBytes(StandardCharsets.UTF_8).length;
+        if (newBatchSizeBytes > spec.getMaxBatchSizeBytes()) {
+          flushBatch();
+        }
+
         if (isDelete) {
           // delete request used for deleting a document.
           batch.add(String.format("{ \"delete\" : %s }%n", documentMetadata));
@@ -1452,7 +1457,7 @@ public class ElasticsearchIO {
                     "{ \"update\" : %s }%n{ \"doc\" : %s, \"doc_as_upsert\" : true }%n",
                     documentMetadata, document));
           } else {
-            batch.add(String.format("{ \"create\" : %s }%n%s%n", documentMetadata, document));
+            batch.add(String.format("{ \"index\" : %s }%n%s%n", documentMetadata, document));
           }
         }
 

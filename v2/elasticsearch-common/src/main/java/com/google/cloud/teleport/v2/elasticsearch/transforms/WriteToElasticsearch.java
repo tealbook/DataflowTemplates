@@ -19,6 +19,7 @@ import static org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.Prec
 
 import com.google.auto.value.AutoValue;
 import com.google.cloud.teleport.v2.elasticsearch.options.ElasticsearchWriteOptions;
+import com.google.cloud.teleport.v2.elasticsearch.transforms.SimpleValueExtractorTransform.SimpleValueExtractorFn;
 import com.google.cloud.teleport.v2.elasticsearch.utils.ConnectionInformation;
 import com.google.cloud.teleport.v2.elasticsearch.utils.ElasticsearchIO;
 import java.util.Optional;
@@ -94,7 +95,8 @@ public abstract class WriteToElasticsearch extends PTransform<PCollection<String
         ElasticsearchIO.write()
             .withConnectionConfiguration(config)
             .withMaxBatchSize(options().getBatchSize())
-            .withMaxBatchSizeBytes(options().getBatchSizeBytes());
+            .withMaxBatchSizeBytes(options().getBatchSizeBytes())
+            .withIdFn(SimpleValueExtractorFn.newBuilder().build());
 
     if (Optional.ofNullable(options().getMaxRetryAttempts()).isPresent()) {
       elasticsearchWriter.withRetryConfiguration(
